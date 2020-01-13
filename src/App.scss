@@ -63,7 +63,7 @@ body {
     text-transform: uppercase;
     padding: 0 .3em;
     line-height: 1.8em;
-    &:hover {
+    &:hover, &[disabled] {
       background: var(--foreground);
       color: var(--background);
     }
@@ -78,9 +78,8 @@ body {
     grid-template-columns: 1fr 1fr;
     .row {
       grid-column: 1 / 3;
-      &.em {
-        margin-top: 1em;
-      }
+      &.em { margin-top: 1em; }
+      &.sep > * { margin-right: .3em; }
     }
     @media (max-width: 960px) {
       grid-template-columns: 1fr;

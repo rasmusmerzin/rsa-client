@@ -26,39 +26,44 @@ export default class App extends React.Component {
 
   render() {
     //document.body.className = 'dark-theme';
-    return <div id='app'>{
-      this.state.rsa === null
-        ? <div id='generating'>
-          <div>generating {this.state.lenRSA}-bit RSA key <span>( )</span></div>
-        </div>
-        : <>
-          <div className='split compact'>
-            <h1 className='row em'>Identity</h1>
-            <div>
-              <h2>Private identity</h2>
-              <div className='key'>{this.state.rsa.exportKey('pkcs8')}</div>
-            </div>
-            <div>
-              <h2>Public identity</h2>
-              <div className='key'>{this.state.rsa.exportKey('pkcs8-public')}</div>
-            </div>
-            <div className='row em sep'>
-              <button onClick={this.generateNewIdentity}>New Identity</button>
-              {this.lenRSAOptions.map(
-                b => <button>{b}</button>
-              )}
-            </div>
-            <h1 className='row em'>Encryption</h1>
-            <div>
-              <h2>Message</h2>
-              <textarea></textarea>
-            </div>
-            <div>
-              <h2>{'Recipient\'s public key'}</h2>
-              <textarea></textarea>
-            </div>
+    return this.state.rsa === null
+      ? <div id='generating'>
+        <div>generating {this.state.lenRSA}-bit RSA key <span>( )</span></div>
+      </div>
+      : <>
+        <div className='split compact'>
+          <div className='row em'>
+            <span>DARK-THEME</span>
+            <input type='checkbox' />
           </div>
-        </>
-    }</div>;
+          <h1 className='row em'>Identity</h1>
+          <div>
+            <h2>Private identity</h2>
+            <div className='key'>{this.state.rsa.exportKey('pkcs8')}</div>
+          </div>
+          <div>
+            <h2>Public identity</h2>
+            <div className='key'>{this.state.rsa.exportKey('pkcs8-public')}</div>
+          </div>
+          <div className='row em sep'>
+            <button onClick={this.generateNewIdentity}>New Identity</button>
+            {this.lenRSAOptions.map(
+              b => <button
+                disabled={this.state.lenRSA === b}
+                onClick={() => this.setState({ lenRSA: b })}
+              >{b}</button>
+            )}
+          </div>
+          <h1 className='row em'>Encryption</h1>
+          <div>
+            <h2>Message</h2>
+            <textarea></textarea>
+          </div>
+          <div>
+            <h2>{'Recipient\'s public key'}</h2>
+            <textarea></textarea>
+          </div>
+        </div>
+      </>;
   }
 }
