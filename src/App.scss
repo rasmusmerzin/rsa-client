@@ -17,6 +17,8 @@
 html {
   --color0: #000;
   --color7: #fff;
+  font-size: 12px;
+  font-family: Courier, monospace;
 }
 
 body {
@@ -28,8 +30,6 @@ body {
   }
   background: var(--background);
   color: var(--foreground);
-  font-size: 12px;
-  font-family: Courier, monospace;
 }
 
 #app {
@@ -40,12 +40,14 @@ body {
   h1, h2, h3, h4, h5, h6 {
     text-transform: uppercase;
     margin: 0;
+    margin-bottom: .5em;
   }
 
   textarea {
     box-sizing: border-box;
     font: inherit;
-    height: 8em;
+    font-size: .95em;
+    height: 12em;
     padding: .2em;
     background: inherit;
     width: 100%;
@@ -56,7 +58,9 @@ body {
 
   button {
     font: inherit;
-    color: inherit;
+    font-size: 1rem;
+    font-weight: normal;
+    color: var(--foreground);
     background: var(--background);
     border: 1px solid var(--foreground);
     border-radius: 2px;
@@ -69,7 +73,13 @@ body {
     }
   }
 
-  .key { white-space: pre; }
+  .key {
+    white-space: pre;
+    max-height: 12em;
+    overflow-y: auto;
+  }
+
+  .sep > * { margin-right: .3em; }
 
   .split {
     display: grid;
@@ -79,7 +89,6 @@ body {
     .row {
       grid-column: 1 / 3;
       &.em { margin-top: 1em; }
-      &.sep > * { margin-right: .3em; }
     }
     @media (max-width: 960px) {
       grid-template-columns: 1fr;
