@@ -35,7 +35,7 @@ class Identity extends React.Component {
 
   generateNewIdentity() {
     this.setState({ rsa: null });
-    setTimeout(() => this.setState({ rsa: new NodeRSA({ b: this.state.lenRSA }) }));
+    setTimeout(() => this.setState({ rsa: new NodeRSA({ b: this.state.lenRSA }) }), 500);
   }
 
   componentDidMount() {
@@ -46,7 +46,7 @@ class Identity extends React.Component {
     return <div>
       <h1>Generate</h1>
       {this.state.rsa === null && <div id='generating'>
-        <div>generating {this.state.lenRSA}-bit RSA key <span>( )</span></div>
+        <div>Generating {this.state.lenRSA}-bit RSA keypair <span>( )</span></div>
       </div>}
       <div className={'split compact' +(this.state.rsa === null ? ' hidden' : '')}>
         <h2>Private key</h2>
