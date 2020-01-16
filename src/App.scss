@@ -4,7 +4,7 @@
 }
 
 @mixin fillScreen {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
@@ -15,88 +15,104 @@
 }
 
 html {
-  --color0: #000;
-  --color7: #fff;
+  --border-radius: 2px;
   font-size: 12px;
   font-family: Courier, monospace;
 }
 
 body {
-  --foreground: var(--color0);
-  --background: var(--color7);
+  --color0: #000;
+  --color1: #ccc;
+  --color3: #fff;
   &.dark-theme {
-    --foreground: var(--color7);
-    --background: var(--color0);
+    --color0: #fff;
+    --color1: #444;
+    --color3: #1c1c1c;
   }
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color3);
+  color: var(--color0);
 }
 
 #app {
   display: grid;
+  justify-content: center;
 
+  * { position: relative; }
 
   p, h1, h2, h3, h4, h5, h6 { margin: 0; }
   h1, h2, h3, h4, h5, h6 {
     text-transform: uppercase;
-    margin: 0;
-    margin-bottom: .5em;
+    margin-top: .5em;
+    margin-bottom: .2em;
   }
 
   textarea {
     box-sizing: border-box;
     font: inherit;
-    font-size: .95em;
-    height: 12em;
+    font-size: .95rem;
+    min-height: 12em;
+    width: 74ex;
     padding: .2em;
     background: inherit;
-    width: 100%;
     color: inherit;
-    border: 1px dashed var(--foreground);
     resize: none;
+    border: 1px dashed var(--color0);
+    &:focus { border: 1px solid var(--color0); }
+    &.ro {
+      border: 1px dashed var(--color1);
+      cursor: copy;
+    }
   }
 
   button {
     font: inherit;
     font-size: 1rem;
     font-weight: normal;
-    color: var(--foreground);
-    background: var(--background);
-    border: 1px solid var(--foreground);
-    border-radius: 2px;
+    color: var(--color0);
+    background: var(--color3);
+    border: 1px solid var(--color0);
+    border-radius: var(--border-radius);
     text-transform: uppercase;
     padding: 0 .3em;
     line-height: 1.8em;
-    &:hover, &[disabled] {
-      background: var(--foreground);
-      color: var(--background);
+    cursor: pointer;
+    &:hover, &.selected {
+      background: var(--color0);
+      color: var(--color3);
+    }
+    &[disabled] {
+      cursor: auto;
+      color: var(--color1);
+      background: var(--color3);
+      border-color: var(--color1);
     }
   }
 
-  .key {
-    white-space: pre;
-    max-height: 12em;
-    overflow-y: auto;
-  }
+  .hidden { visibility: hidden; }
+  .inline { display: inline; }
+  .text-to-right { text-align: right; }
 
-  .sep > * { margin-right: .3em; }
+  .sep3 > * { margin-right: .3rem; }
+  .sep2 > * { margin-right: .6rem; }
+  .sep > * { margin-right: 1rem; }
 
   .split {
     display: grid;
 
-    grid-gap: 0 1em;
+    grid-gap: 0 1rem;
     grid-template-columns: 1fr 1fr;
     .row {
       grid-column: 1 / 3;
-      &.em { margin-top: 1em; }
+      &.em { margin-top: 1rem; }
     }
+    .col { grid-row-end: span 3; }
+    &.compact { grid-template-columns: auto 1fr; }
     @media (max-width: 960px) {
       grid-template-columns: 1fr;
       .row { grid-column: 1; }
-      grid-gap: 1em 1em;
+      grid-gap: 1rem 1rem;
+      &.compact { grid-template-columns: 1fr; }
     }
-
-    &.compact { width: 0; }
   }
 
   #generating {

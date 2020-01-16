@@ -3,17 +3,26 @@ import NodeRSA from 'node-rsa';
 import './App.scss';
 
 
-export default class App extends React.Component {
-  lenRSAOptions = [512, 1024, 2048, 4096];
+const copyToClipboard = elem => {
+  elem.select();
+  elem.setSelectionRange(0, 99999);
+  return document.execCommand('copy');
+};
 
+const encrypt = (msg, pub) => {
+  const rsa = new NodeRSA(pub);
+  return rsa.encrypt(msg, 'base64');
+};
+
+const decrypt = (msg, prv) => {
+  const rsa = new NodeRSA(prv);
+  return rsa.decrypt(msg, 'utf-8');
+};
+
+class Identity extends React.Component {
+  lenRSAOptions = [512, 1024, 2048, 4096];
   genPrv = React.createRef();
   genPub = React.createRef();
-
-  encMsg = React.createRef();
-  encPub = React.createRef();
-
-  decMsg = React.createRef();
-  decPrv = React.createRef();
 
   constructor(props) {
     super(props);
@@ -33,70 +42,176 @@ export default class App extends React.Component {
     this.generateNewIdentity();
   }
 
-  copyToClipboard(elem) {
-    elem.select();
-    elem.setSelectionRange(0, 99999);
-    document.execCommand('copy');
+  render() {
+    return <div>
+      <h1>Generate</h1>
+      {this.state.rsa === null && <div id='generating'>
+        <div>generating {this.state.lenRSA}-bit RSA key <span>( )</span></div>
+      </div>}
+      <div className={'split compact' +(this.state.rsa === null ? ' hidden' : '')}>
+        <h2>Private key</h2>
+        <h2>Public key</h2>
+        <textarea
+          className='ro'
+          value={this.state.rsa ? this.state.rsa.exportKey('pkcs8-private') : ''}
+          readOnly
+          ref={this.genPrv}
+          onClick={() => copyToClipboard(this.genPrv.current)}
+        ></textarea>
+        <textarea
+          className='ro'
+          value={this.state.rsa ? this.state.rsa.exportKey('pkcs8-public') : ''}
+          readOnly
+          ref={this.genPub}
+          onClick={() => copyToClipboard(this.genPub.current)}
+        ></textarea>
+        <div className='row em sep'>
+          <div className='sep2 inline'>
+            <button onClick={this.generateNewIdentity}>Generate Keypair</button>
+            <div className='sep3 inline'>
+              {this.lenRSAOptions.map(
+                (b, i) => <button
+                  key={i}
+                  className={this.state.lenRSA === b ? 'selected' : ''}
+                  onClick={() => this.setState({ lenRSA: b })}
+                >{b}</button>
+              )}
+            </div>
+          </div>
+          <button disabled>Import</button>
+        </div>
+      </div>
+    </div>;
+  }
+}
+
+class Encryption extends React.Component {
+  encMsg = React.createRef();
+  encPub = React.createRef();
+  encRes = React.createRef();
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      result: '',
+      processInfo: ''
+    };
   }
 
   render() {
-    return this.state.rsa === null
-      ? <div id='generating'>
-        <div>generating {this.state.lenRSA}-bit RSA key <span>( )</span></div>
+    return <div className='split compact'>
+      <h1 className='row em'>Encryption</h1>
+      <h2>Message</h2>
+      <h2>Encrypted message</h2>
+      <textarea
+        ref={this.encMsg}
+        onChange={() => this.setState({ result: '' })}
+      />
+      <textarea
+        className='col ro'
+        value={this.state.result}
+        readOnly
+        ref={this.encRes}
+        onClick={() => copyToClipboard(this.encRes.current)}
+      />
+      <h2>{'Recipient\'s public key'}</h2>
+      <textarea
+        ref={this.encPub}
+        onChange={() => this.setState({ result: '' })}
+      />
+      <div className='row em sep2'>
+        <button
+          onClick={() => {
+            this.setState({ processInfo: 'encrypting...' });
+            try {
+              const res = encrypt(this.encMsg.current.value, this.encPub.current.value);
+              this.setState({ result: res, processInfo: '' });
+            } catch(e) {
+              this.setState({ processInfo: String(e) });
+            }
+          }}
+        >Encrypt</button>
+        <i>{this.state.processInfo}</i>
       </div>
-      : <>
-        <div className='split compact'>
-          <div className='row em'>
-            <span>DARK-THEME</span>
-            <input
-              type='checkbox'
-              onChange={() => {
-                const className = 'dark-theme';
-                const classes = document.body.className.split(' ').filter(c => c.length !== 0);
-                const darkIndex = classes.indexOf(className);
-                if (darkIndex === -1) {
-                  classes.push(className);
-                } else {
-                  classes.splice(darkIndex, 1);
-                }
-                console.log(classes.join(' '));
-                document.body.className = classes.join(' ');
-              }}
-            />
-          </div>
-          <h1 className='row em'>Identity</h1>
-          <div>
-            <h2>Private identity</h2>
-            <div
-              className='key'
-              ref={this.genPrv}
-            >{this.state.rsa.exportKey('pkcs8-private')}</div>
-          </div>
-          <div>
-            <h2>Public identity</h2>
-            <div
-              className='key'
-              ref={this.genPub}
-            >{this.state.rsa.exportKey('pkcs8-public')}</div>
-          </div>
-          <div className='row em sep'>
-            <button onClick={this.generateNewIdentity}>New Identity</button>
-            {this.lenRSAOptions.map(
-              (b, i) => <button
-                key={i}
-                disabled={this.state.lenRSA === b}
-                onClick={() => this.setState({ lenRSA: b })}
-              >{b}</button>
-            )}
-          </div>
-          <h1 className='row em'>Encryption</h1>
-          <div>
-            <h2>Message</h2>
-            <textarea ref={this.encMsg} />
-            <h2>{'Recipient\'s public key'}</h2>
-            <textarea ref={this.encPub} />
-          </div>
-        </div>
-      </>;
+    </div>;
+  }
+}
+
+class Decryption extends React.Component {
+  decMsg = React.createRef();
+  decPub = React.createRef();
+  decRes = React.createRef();
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      result: '',
+      processInfo: ''
+    };
+  }
+
+  render() {
+    return <div className='split compact'>
+      <h1 className='row em'>Decryption</h1>
+      <h2>Encrypted message</h2>
+      <h2>Original message</h2>
+      <textarea
+        ref={this.decMsg}
+        onChange={() => this.setState({ result: '' })}
+      />
+      <textarea
+        className='col ro'
+        value={this.state.result}
+        readOnly
+        ref={this.decRes}
+        onClick={() => copyToClipboard(this.decRes.current)}
+      />
+      <h2>Private key</h2>
+      <textarea
+        ref={this.decPub}
+        onChange={() => this.setState({ result: '' })}
+      />
+      <div className='row em sep2'>
+        <button
+          onClick={() => {
+            this.setState({ processInfo: 'decrypting...' });
+            try {
+              const res = decrypt(this.decMsg.current.value, this.decPub.current.value);
+              this.setState({ result: res, processInfo: '' });
+            } catch(e) {
+              this.setState({ processInfo: String(e) });
+            }
+          }}
+        >Decrypt</button>
+        <i>{this.state.processInfo}</i>
+      </div>
+    </div>;
+  }
+}
+
+
+export default class App extends React.Component {
+  render() {
+    return <>
+      <div className='text-to-right'>
+        <button
+          onClick={() => {
+            const className = 'dark-theme';
+            const classes = document.body.className.split(' ').filter(c => c.length !== 0);
+            const darkIndex = classes.indexOf(className);
+            if (darkIndex === -1) {
+              classes.push(className);
+            } else {
+              classes.splice(darkIndex, 1);
+            }
+            console.log(classes.join(' '));
+            document.body.className = classes.join(' ');
+          }}
+        >Dark-Theme</button>
+      </div>
+      <Identity />
+      <Encryption />
+      <Decryption />
+    </>;
   }
 }
