@@ -16,7 +16,7 @@
 
 html {
   --border-radius: 2px;
-  font-size: 12px;
+  font-size: calc(1rem /16 *12);
   font-family: Courier, monospace;
 }
 
@@ -51,7 +51,7 @@ body {
     font: inherit;
     font-size: .95rem;
     min-height: 12em;
-    width: 74ex;
+    width: 78ex;
     padding: .2em;
     background: inherit;
     color: inherit;
@@ -108,7 +108,7 @@ body {
     }
     .col { grid-row-end: span 3; }
     &.compact { grid-template-columns: auto 1fr; }
-    @media (max-width: 960px) {
+    @media (max-width: 130ex) {
       grid-template-columns: 1fr;
       .row { grid-column: 1; }
       grid-gap: 1rem 1rem;
