@@ -69,7 +69,13 @@ class Identity extends React.Component {
       <div className='sep'>
         <div className='sep2 inline'>
           <button
-            onClick={this.generateNewIdentity}
+            onClick={() => {
+              this.props.setDialogue(
+                'Are you sure?',
+                'Previous pair will be overwritten. You may need to save it before generating a new keypair.',
+                ['continue', 'cancel']
+              ).then(op => op === 'continue' && this.generateNewIdentity());
+            }}
             disabled={this.state.rsa === null}
           >Generate Keypair</button>
           <div className='sep3 inline'>
@@ -83,7 +89,10 @@ class Identity extends React.Component {
             )}
           </div>
         </div>
-        <button disabled>Import</button>
+        <button
+          disabled//={this.state.rsa === null}
+          onClick={() => {}}
+        >Import</button>
       </div>
     </div>;
   }
@@ -202,15 +211,49 @@ class Decryption extends React.Component {
 }
 
 
+class Dialogue extends React.Component {
+  componentWillUnmount() {
+    (this.props.onRemove || (() => {}))();
+  }
+
+  render() {
+    return <div className='dialogue'>
+      <h2>{this.props.title}</h2>
+      <p>{this.props.desc}</p>
+      <div className='sep-rev text-align-right'>
+        {(this.props.options || ['ok']).map((op, i) =>
+          <button
+            key={i}
+            onClick={() => this.props.onClick(op)}
+          >{op}</button>
+        )}
+      </div>
+    </div>;
+  }
+}
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
-    this.setDialog = this.setDialog.bind(this);
+    this.setDialogue = this.setDialogue.bind(this);
   }
 
-  setDialog(jsx) {
-    this.setState({ dialog: jsx });
+  setDialogue(title='?', desc='...', options=['ok']) {
+    return new Promise((resolve, reject) => {
+      this.setState({
+        dialogue: <Dialogue
+          title={title}
+          desc={desc}
+          options={options}
+          onRemove={reject}
+          onClick={op => {
+            resolve(op);
+            this.setState({ dialogue: undefined });
+          }}
+        />
+      });
+    });
   }
 
   render() {
@@ -231,10 +274,10 @@ export default class App extends React.Component {
           }}
         >Dark-Theme</button>
       </div>
-      <Identity />
+      <Identity setDialogue={this.setDialogue} />
       <Encryption />
       <Decryption />
-      {this.state.dialog && <div id='dialog'>{this.state.dialog}</div>}
+      {this.state.dialogue && <div id='popup'>{this.state.dialogue}</div>}
     </>;
   }
 }

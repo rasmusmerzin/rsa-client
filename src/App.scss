@@ -2,6 +2,16 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pop {
+  from {
+    max-width: 0;
+    max-height: 0;
+  }
+}
 
 @mixin fillScreen {
   position: absolute;
@@ -41,10 +51,10 @@ body {
 
   * { position: relative; }
 
-  p, h1, h2, h3, h4, h5, h6 { margin: 0; }
+  p { text-align: justify; }
   h1, h2, h3, h4, h5, h6 {
     text-transform: uppercase;
-    margin-top: .5em;
+    margin-top: 1.5em;
     margin-bottom: .2em;
   }
 
@@ -106,6 +116,7 @@ body {
   .sep3 > * { margin-right: .3rem; }
   .sep2 > * { margin-right: .6rem; }
   .sep > * { margin-right: 1rem; }
+  .sep-rev > * { margin-left: 1rem; }
 
   .split {
     display: grid;
@@ -135,5 +146,29 @@ body {
       display: inline-block;
       animation: 2s infinite linear rotate;
     }
+  }
+
+  #popup {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: #000a;
+    display: grid;
+    justify-content: center;
+    justify-items: center;
+    align-content: center;
+    align-items: center;
+    animation: .2s fadeIn;
+  }
+
+  .dialogue {
+    h2 { margin-top: 0; }
+    max-width: 60%;
+    background: var(--color3);
+    padding: 1.2rem 1.2rem;
+    border-radius: var(--border-radius);
+    animation: .6s fadeIn, .1s pop;
   }
 }
