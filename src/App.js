@@ -49,11 +49,10 @@ class Identity extends React.Component {
         <div>Generating {this.state.lenRSA}-bit RSA keypair <span>( )</span></div>
       </div>}
       <div className={'split compact' +(this.state.rsa === null ? ' hidden' : '')}>
-        <h2>Private key</h2>
-        <h2>Public key</h2>
         <textarea
           className='ro'
           value={this.state.rsa ? this.state.rsa.exportKey('pkcs8-private') : ''}
+          placeholder='Private key'
           readOnly
           ref={this.genPrv}
           onClick={() => copyToClipboard(this.genPrv.current)}
@@ -61,25 +60,30 @@ class Identity extends React.Component {
         <textarea
           className='ro'
           value={this.state.rsa ? this.state.rsa.exportKey('pkcs8-public') : ''}
+          placeholder='Public key'
           readOnly
           ref={this.genPub}
           onClick={() => copyToClipboard(this.genPub.current)}
         ></textarea>
-        <div className='row em sep'>
-          <div className='sep2 inline'>
-            <button onClick={this.generateNewIdentity}>Generate Keypair</button>
-            <div className='sep3 inline'>
-              {this.lenRSAOptions.map(
-                (b, i) => <button
-                  key={i}
-                  className={this.state.lenRSA === b ? 'selected' : ''}
-                  onClick={() => this.setState({ lenRSA: b })}
-                >{b}</button>
-              )}
-            </div>
+      </div>
+      <div className='sep'>
+        <div className='sep2 inline'>
+          <button
+            onClick={this.generateNewIdentity}
+            disabled={this.state.rsa === null}
+          >Generate Keypair</button>
+          <div className='sep3 inline'>
+            {this.lenRSAOptions.map(
+              (b, i) => <button
+                key={i}
+                disabled={this.state.rsa === null}
+                className={this.state.lenRSA === b ? 'selected' : ''}
+                onClick={() => this.setState({ lenRSA: b })}
+              >{b}</button>
+            )}
           </div>
-          <button disabled>Import</button>
         </div>
+        <button disabled>Import</button>
       </div>
     </div>;
   }
@@ -99,27 +103,31 @@ class Encryption extends React.Component {
   }
 
   render() {
-    return <div className='split compact'>
-      <h1 className='row em'>Encryption</h1>
-      <h2>Message</h2>
-      <h2>Encrypted message</h2>
-      <textarea
-        ref={this.encMsg}
-        onChange={() => this.setState({ result: '' })}
-      />
-      <textarea
-        className='col ro'
-        value={this.state.result}
-        readOnly
-        ref={this.encRes}
-        onClick={() => copyToClipboard(this.encRes.current)}
-      />
-      <h2>{'Recipient\'s public key'}</h2>
-      <textarea
-        ref={this.encPub}
-        onChange={() => this.setState({ result: '' })}
-      />
-      <div className='row em sep2'>
+    return <>
+      <h1>Encryption</h1>
+      <div className='split two-to-one compact'>
+        <textarea
+          ref={this.encMsg}
+          className='top-left'
+          placeholder='Message'
+          onChange={() => this.setState({ result: '' })}
+        />
+        <textarea
+          ref={this.encPub}
+          className='bottom-left'
+          placeholder="Recipient's public key"
+          onChange={() => this.setState({ result: '' })}
+        />
+        <textarea
+          className='ro right'
+          value={this.state.result}
+          placeholder='Encrypted message'
+          readOnly
+          ref={this.encRes}
+          onClick={() => copyToClipboard(this.encRes.current)}
+        />
+      </div>
+      <div>
         <button
           onClick={() => {
             this.setState({ processInfo: 'encrypting...' });
@@ -133,7 +141,7 @@ class Encryption extends React.Component {
         >Encrypt</button>
         <i>{this.state.processInfo}</i>
       </div>
-    </div>;
+    </>;
   }
 }
 
@@ -151,27 +159,31 @@ class Decryption extends React.Component {
   }
 
   render() {
-    return <div className='split compact'>
-      <h1 className='row em'>Decryption</h1>
-      <h2>Encrypted message</h2>
-      <h2>Original message</h2>
-      <textarea
-        ref={this.decMsg}
-        onChange={() => this.setState({ result: '' })}
-      />
-      <textarea
-        className='col ro'
-        value={this.state.result}
-        readOnly
-        ref={this.decRes}
-        onClick={() => copyToClipboard(this.decRes.current)}
-      />
-      <h2>Private key</h2>
-      <textarea
-        ref={this.decPub}
-        onChange={() => this.setState({ result: '' })}
-      />
-      <div className='row em sep2'>
+    return <>
+      <h1>Decryption</h1>
+      <div className='split two-to-one compact'>
+        <textarea
+          className='top-left'
+          ref={this.decMsg}
+          placeholder='Encrypted message'
+          onChange={() => this.setState({ result: '' })}
+        />
+        <textarea
+          className='bottom-left'
+          ref={this.decPub}
+          placeholder='Private key'
+          onChange={() => this.setState({ result: '' })}
+        />
+        <textarea
+          className='ro right'
+          value={this.state.result}
+          placeholder='Original message'
+          readOnly
+          ref={this.decRes}
+          onClick={() => copyToClipboard(this.decRes.current)}
+        />
+      </div>
+      <div className='sep2'>
         <button
           onClick={() => {
             this.setState({ processInfo: 'decrypting...' });
@@ -185,15 +197,25 @@ class Decryption extends React.Component {
         >Decrypt</button>
         <i>{this.state.processInfo}</i>
       </div>
-    </div>;
+    </>;
   }
 }
 
 
 export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+    this.setDialog = this.setDialog.bind(this);
+  }
+
+  setDialog(jsx) {
+    this.setState({ dialog: jsx });
+  }
+
   render() {
     return <>
-      <div className='text-to-right'>
+      <div className='text-align-right'>
         <button
           onClick={() => {
             const className = 'dark-theme';
@@ -212,6 +234,7 @@ export default class App extends React.Component {
       <Identity />
       <Encryption />
       <Decryption />
+      {this.state.dialog && <div id='dialog'>{this.state.dialog}</div>}
     </>;
   }
 }
