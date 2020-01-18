@@ -3,6 +3,8 @@ import NodeRSA from 'node-rsa';
 import './App.scss';
 
 
+const shortenString = (str, len=50) => str.length <= len ? str : str.substr(0, len -3) +'...';
+
 const copyToClipboard = elem => {
   elem.select();
   elem.setSelectionRange(0, 99999);
@@ -23,6 +25,8 @@ class Identity extends React.Component {
   lenRSAOptions = [512, 1024, 2048, 4096];
   genPrv = React.createRef();
   genPub = React.createRef();
+  inpPrv = React.createRef();
+  inpErr = React.createRef();
 
   constructor(props) {
     super(props);
@@ -90,8 +94,17 @@ class Identity extends React.Component {
           </div>
         </div>
         <button
-          disabled//={this.state.rsa === null}
-          onClick={() => {}}
+          disabled={this.state.rsa === null}
+          onClick={() => {
+            this.props.setDialogue(
+              'Import private key',
+              <textarea />,
+              ['import', 'cancel']
+            ).then(op => {
+              if (op === 'import') {
+              }
+            });
+          }}
         >Import</button>
       </div>
     </div>;
@@ -136,7 +149,7 @@ class Encryption extends React.Component {
           onClick={() => copyToClipboard(this.encRes.current)}
         />
       </div>
-      <div>
+      <div className='sep2'>
         <button
           onClick={() => {
             this.setState({ processInfo: 'encrypting...' });
@@ -148,7 +161,7 @@ class Encryption extends React.Component {
             }
           }}
         >Encrypt</button>
-        <i>{this.state.processInfo}</i>
+        <i>{shortenString(this.state.processInfo)}</i>
       </div>
     </>;
   }
@@ -204,7 +217,7 @@ class Decryption extends React.Component {
             }
           }}
         >Decrypt</button>
-        <i>{this.state.processInfo}</i>
+        <i>{shortenString(this.state.processInfo)}</i>
       </div>
     </>;
   }
@@ -269,7 +282,6 @@ export default class App extends React.Component {
             } else {
               classes.splice(darkIndex, 1);
             }
-            console.log(classes.join(' '));
             document.body.className = classes.join(' ');
           }}
         >Dark-Theme</button>
