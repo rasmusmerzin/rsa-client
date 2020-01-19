@@ -25,13 +25,13 @@ class Identity extends React.Component {
   lenRSAOptions = [512, 1024, 2048, 4096];
   genPrv = React.createRef();
   genPub = React.createRef();
-  inpPrv = React.createRef();
-  inpErr = React.createRef();
+  impPrv = React.createRef();
 
   constructor(props) {
     super(props);
     this.state = {
       lenRSA: 1024,
+      impBuffer: '',
       rsa: null
     };
     this.generateNewIdentity = this.generateNewIdentity.bind(this);
@@ -77,8 +77,9 @@ class Identity extends React.Component {
               this.props.setDialogue(
                 'Are you sure?',
                 'Previous pair will be overwritten. You may need to save it before generating a new keypair.',
-                ['continue', 'cancel']
-              ).then(op => op === 'continue' && this.generateNewIdentity());
+                ['overwrite', 'cancel'],
+                op => op === 'overwrite' && this.generateNewIdentity()
+              );
             }}
             disabled={this.state.rsa === null}
           >Generate Keypair</button>
@@ -96,14 +97,25 @@ class Identity extends React.Component {
         <button
           disabled={this.state.rsa === null}
           onClick={() => {
+            this.setState({ impBuffer: '' });
             this.props.setDialogue(
-              'Import private key',
-              <textarea />,
-              ['import', 'cancel']
-            ).then(op => {
-              if (op === 'import') {
+              'Import keypair',
+              <textarea
+                ref={this.impPrv}
+                placeholder='Private key'
+                onChange={() => this.setState({ impBuffer: this.impPrv.current.value })}
+              />,
+              ['import', 'cancel'],
+              op => {
+                if (op === 'import') {
+                  try {
+                    const newKey = new NodeRSA(this.state.impBuffer);
+                    newKey.exportKey('pkcs8-private');
+                    this.setState({ rsa: newKey, impBuffer: '' });
+                  } catch(e) { return String(e); }
+                }
               }
-            });
+            );
           }}
         >Import</button>
       </div>
@@ -125,7 +137,7 @@ class Encryption extends React.Component {
   }
 
   render() {
-    return <>
+    return <div>
       <h1>Encryption</h1>
       <div className='split two-to-one compact'>
         <textarea
@@ -163,7 +175,7 @@ class Encryption extends React.Component {
         >Encrypt</button>
         <i>{shortenString(this.state.processInfo)}</i>
       </div>
-    </>;
+    </div>;
   }
 }
 
@@ -181,7 +193,7 @@ class Decryption extends React.Component {
   }
 
   render() {
-    return <>
+    return <div>
       <h1>Decryption</h1>
       <div className='split two-to-one compact'>
         <textarea
@@ -219,20 +231,17 @@ class Decryption extends React.Component {
         >Decrypt</button>
         <i>{shortenString(this.state.processInfo)}</i>
       </div>
-    </>;
+    </div>;
   }
 }
 
 
 class Dialogue extends React.Component {
-  componentWillUnmount() {
-    (this.props.onRemove || (() => {}))();
-  }
-
   render() {
     return <div className='dialogue'>
       <h2>{this.props.title}</h2>
       <p>{this.props.desc}</p>
+      <i>{this.props.remark}</i>
       <div className='sep-rev text-align-right'>
         {(this.props.options || ['ok']).map((op, i) =>
           <button
@@ -252,20 +261,24 @@ export default class App extends React.Component {
     this.setDialogue = this.setDialogue.bind(this);
   }
 
-  setDialogue(title='?', desc='...', options=['ok']) {
-    return new Promise((resolve, reject) => {
-      this.setState({
-        dialogue: <Dialogue
-          title={title}
-          desc={desc}
-          options={options}
-          onRemove={reject}
-          onClick={op => {
-            resolve(op);
+  componentDidMount() {
+    document.addEventListener('keyup', e => e.key === 'Escape' && this.setState({ dialogue: undefined }));
+  }
+
+  setDialogue(title='?', desc='...', options, run=()=>{}) {
+    this.setState({
+      dialogue: <Dialogue
+        title={title}
+        desc={desc}
+        options={options}
+        onClick={op => {
+          const err = run(op);
+          if (err) {
+          } else {
             this.setState({ dialogue: undefined });
-          }}
-        />
-      });
+          }
+        }}
+      />
     });
   }
 
