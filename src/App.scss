@@ -71,10 +71,10 @@ body {
     border: 1px dashed var(--color0);
     &:focus { border: 1px solid var(--color0); }
     &.ro {
-      scrollbar-width: none;
       text-align: center;
       border: 1px dashed var(--color1);
       cursor: copy;
+      &::-webkit-scrollbar { display: none; }
     }
     &::placeholder {
       color: var(--color2);
