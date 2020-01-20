@@ -30,13 +30,13 @@ html {
 
 body {
   --color0: #000;
-  --color1: #ccc;
-  --color2: #666;
+  --color1: #666;
+  --color2: #ccc;
   --color3: #fff;
   &.dark-theme {
     --color0: #fff;
-    --color1: #444;
-    --color2: #aaa;
+    --color2: #444;
+    --color1: #aaa;
     --color3: #1c1c1c;
   }
   background: var(--color3);
@@ -56,7 +56,13 @@ body {
     margin-bottom: .2em;
   }
 
-  i { color: var(--color2); }
+  i { color: var(--color1); }
+  a {
+    color: var(--color1);
+    text-decoration: none;
+    font-style: italic;
+    &:hover { text-decoration: underline; }
+  }
 
   textarea {
     box-sizing: border-box;
@@ -72,12 +78,12 @@ body {
     &:focus { border: 1px solid var(--color0); }
     &.ro {
       text-align: center;
-      border: 1px dashed var(--color1);
+      border: 1px dashed var(--color2);
       cursor: copy;
       &::-webkit-scrollbar { display: none; }
     }
     &::placeholder {
-      color: var(--color2);
+      color: var(--color1);
       text-transform: uppercase;
       font-style: italic;
     }
@@ -101,10 +107,15 @@ body {
     }
     &[disabled] {
       cursor: auto;
-      color: var(--color1);
+      color: var(--color2);
       background: var(--color3);
-      border-color: var(--color1);
+      border-color: var(--color2);
     }
+  }
+
+  .quote {
+    padding: 4rem 0;
+    margin: auto;
   }
 
   .hidden { visibility: hidden; }

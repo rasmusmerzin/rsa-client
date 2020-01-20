@@ -302,6 +302,9 @@ export default class App extends React.Component {
       <Identity setDialogue={this.setDialogue} />
       <Encryption />
       <Decryption />
+      <div className='quote'>
+        <a href='http://github.com/rasmusmerzin/rsa-client'>source</a>
+      </div>
       {this.state.dialogue && <div id='popup'>{this.state.dialogue}</div>}
     </>;
   }
