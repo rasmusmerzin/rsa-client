@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/rsa-client/precache-manifest.1e430c269a4dade37930d3f7e9a02122.js"
+  "/rsa-client/precache-manifest.d56ab0b768082636084455ce3f2ec7f3.js"
 );
 
 self.addEventListener('message', (event) => {
