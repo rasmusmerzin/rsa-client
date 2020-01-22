@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "b401f0704e92bc211a02a48526737a35",
+    "revision": "a073240e79f48fdca8c733330e2e3e22",
     "url": "/rsa-client/index.html"
   },
   {
-    "revision": "2405a7fa5d6a00dbe407",
+    "revision": "995faa6c1b2b74635e38",
     "url": "/rsa-client/static/css/main.b4c5d4cb.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/rsa-client/static/js/2.b02b3e83.chunk.js.LICENSE"
   },
   {
-    "revision": "2405a7fa5d6a00dbe407",
-    "url": "/rsa-client/static/js/main.c6826c2e.chunk.js"
+    "revision": "995faa6c1b2b74635e38",
+    "url": "/rsa-client/static/js/main.cbe95538.chunk.js"
   },
   {
     "revision": "5c30df7a4d2051f6a656",
