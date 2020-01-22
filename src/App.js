@@ -48,7 +48,7 @@ class Identity extends React.Component {
 
   render() {
     return <div>
-      <h1>Generate</h1>
+      <h1>Keypair</h1>
       {this.state.rsa === null && <div id='generating'>
         <div>Generating {this.state.lenRSA}-bit RSA keypair <span>( )</span></div>
       </div>}
@@ -82,7 +82,7 @@ class Identity extends React.Component {
               );
             }}
             disabled={this.state.rsa === null}
-          >Generate Keypair</button>
+          >Generate</button>
           <div className='sep3 inline'>
             {this.lenRSAOptions.map(
               (b, i) => <button
