@@ -22,7 +22,7 @@ const decrypt = (msg, prv) => {
 };
 
 class Identity extends React.Component {
-  lenRSAOptions = [512, 1024, 2048, 4096];
+  lenRSAOptions = [.5, 1, 2, 3, 4].map(a => a *1024);
   genPrv = React.createRef();
   genPub = React.createRef();
   impPrv = React.createRef();
