@@ -37,7 +37,6 @@
   },
   "homepage": "https://rasmusmerzin.github.io/rsa-client",
   "devDependencies": {
-    "gh-pages": "^2.2.0",
-    "npm": "^6.13.7"
+    "gh-pages": "^2.2.0"
   }
 }
