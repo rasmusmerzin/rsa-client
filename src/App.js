@@ -38,8 +38,13 @@ class Identity extends React.Component {
   }
 
   generateNewIdentity() {
+    this.props.setLoading(`Generating ${this.state.lenRSA}-bit RSA keypair`);
     this.setState({ rsa: null });
-    setTimeout(() => this.setState({ rsa: new NodeRSA({ b: this.state.lenRSA }) }), 500);
+    setTimeout(() => this.setState(state => {
+      state.rsa = new NodeRSA({ b: this.state.lenRSA });
+      this.props.setLoading();
+      return state;
+    }), 500);
   }
 
   componentDidMount() {
@@ -49,10 +54,7 @@ class Identity extends React.Component {
   render() {
     return <div>
       <h1>Keypair</h1>
-      {this.state.rsa === null && <div id='generating'>
-        <div>Generating {this.state.lenRSA}-bit RSA keypair <span>( )</span></div>
-      </div>}
-      <div className={'split compact' +(this.state.rsa === null ? ' hidden' : '')}>
+      <div className='split compact'>
         <textarea
           className='ro'
           value={this.state.rsa ? this.state.rsa.exportKey('pkcs8-private') : ''}
@@ -81,13 +83,11 @@ class Identity extends React.Component {
                 op => op === 'overwrite' && this.generateNewIdentity()
               );
             }}
-            disabled={this.state.rsa === null}
           >Generate</button>
           <div className='sep3 inline'>
             {this.lenRSAOptions.map(
               (b, i) => <button
                 key={i}
-                disabled={this.state.rsa === null}
                 className={this.state.lenRSA === b ? 'selected' : ''}
                 onClick={() => this.setState({ lenRSA: b })}
               >{b}</button>
@@ -95,7 +95,6 @@ class Identity extends React.Component {
           </div>
         </div>
         <button
-          disabled={this.state.rsa === null}
           onClick={() => {
             this.setState({ impBuffer: '' });
             this.props.setDialogue(
@@ -164,13 +163,17 @@ class Encryption extends React.Component {
       <div className='sep2'>
         <button
           onClick={() => {
+            this.props.setLoading('Encrypting...');
             this.setState({ processInfo: 'encrypting...' });
-            try {
-              const res = encrypt(this.encMsg.current.value, this.encPub.current.value);
-              this.setState({ result: res, processInfo: '' });
-            } catch(e) {
-              this.setState({ processInfo: String(e) });
-            }
+            setTimeout(() => {
+              try {
+                const res = encrypt(this.encMsg.current.value, this.encPub.current.value);
+                this.setState({ result: res, processInfo: '' });
+              } catch(e) {
+                this.setState({ processInfo: String(e) });
+              }
+              this.props.setLoading();
+            });
           }}
         >Encrypt</button>
         <i>{shortenString(this.state.processInfo)}</i>
@@ -220,13 +223,17 @@ class Decryption extends React.Component {
       <div className='sep2'>
         <button
           onClick={() => {
+            this.props.setLoading('Decrypting...');
             this.setState({ processInfo: 'decrypting...' });
-            try {
-              const res = decrypt(this.decMsg.current.value, this.decPub.current.value);
-              this.setState({ result: res, processInfo: '' });
-            } catch(e) {
-              this.setState({ processInfo: String(e) });
-            }
+            setTimeout(() => {
+              try {
+                const res = decrypt(this.decMsg.current.value, this.decPub.current.value);
+                this.setState({ result: res, processInfo: '' });
+              } catch(e) {
+                this.setState({ processInfo: String(e) });
+              }
+              this.props.setLoading();
+            });
           }}
         >Decrypt</button>
         <i>{shortenString(this.state.processInfo)}</i>
@@ -259,6 +266,7 @@ export default class App extends React.Component {
     super(props);
     this.state = {};
     this.setDialogue = this.setDialogue.bind(this);
+    this.setLoading = this.setLoading.bind(this);
   }
 
   componentDidMount() {
@@ -282,6 +290,10 @@ export default class App extends React.Component {
     });
   }
 
+  setLoading(message) {
+    this.setState({ loading: message });
+  }
+
   render() {
     return <>
       <div className='text-align-right'>
@@ -299,13 +311,24 @@ export default class App extends React.Component {
           }}
         >Dark-Theme</button>
       </div>
-      <Identity setDialogue={this.setDialogue} />
-      <Encryption />
-      <Decryption />
+      <Identity
+        setDialogue={this.setDialogue}
+        setLoading={this.setLoading}
+      />
+      <Encryption
+        setLoading={this.setLoading}
+      />
+      <Decryption
+        setLoading={this.setLoading}
+      />
       <div className='quote'>
         <a href='http://github.com/rasmusmerzin/rsa-client'>source</a>
       </div>
       {this.state.dialogue && <div id='popup'>{this.state.dialogue}</div>}
+      {this.state.loading && <div id='loading'>
+        <div className='message'>{this.state.loading}</div>
+        <div className='spinner'>( )</div>
+      </div>}
     </>;
   }
 }
